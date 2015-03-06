@@ -1,2 +1,3 @@
-server/GreetingController.class
 server/Application.class
+server/SentimentController.class
+server/SimpleCORSFilter.class
