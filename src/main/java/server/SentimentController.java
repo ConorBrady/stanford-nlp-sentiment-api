@@ -25,42 +25,47 @@ import edu.stanford.nlp.util.CoreMap;
 @Controller
 public class SentimentController {
 
-    @RequestMapping("/sentiment")
-    public @ResponseBody HashMap<Integer,HashMap<String,Object>> sentiment(@RequestParam(value="lines", required=true) List<String> lines, Model model) {
+	StanfordCoreNLP tokenizer;
+	StanfordCoreNLP pipeline;
 
-        // We construct two pipelines.  One handles tokenization, if
-        // necessary.  The other takes tokenized sentences and converts
-        // them to sentiment trees.
-        Properties pipelineProps = new Properties();
-        Properties tokenizerProps = new Properties();
+	public SentimentController() {
+		// We construct two pipelines.  One handles tokenization, if
+		// necessary.  The other takes tokenized sentences and converts
+		// them to sentiment trees.
+		Properties pipelineProps = new Properties();
+		Properties tokenizerProps = new Properties();
 
-        pipelineProps.setProperty("ssplit.eolonly", "true");
-        pipelineProps.setProperty("annotators", "parse, sentiment");
-        pipelineProps.setProperty("enforceRequirements", "false");
+		pipelineProps.setProperty("ssplit.eolonly", "true");
+		pipelineProps.setProperty("annotators", "parse, sentiment");
+		pipelineProps.setProperty("enforceRequirements", "false");
 
-        tokenizerProps.setProperty("annotators", "tokenize, ssplit");
+		tokenizerProps.setProperty("annotators", "tokenize, ssplit");
 
-        StanfordCoreNLP tokenizer = new StanfordCoreNLP(tokenizerProps);
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(pipelineProps);
+		this.tokenizer = new StanfordCoreNLP(tokenizerProps);
+		this.pipeline = new StanfordCoreNLP(pipelineProps);
 
-        HashMap<Integer,HashMap<String,Object>> response = new HashMap<Integer,HashMap<String,Object>>();
+	}
+	@RequestMapping("/sentiment")
+		public @ResponseBody HashMap<Integer,HashMap<String,Object>> sentiment(@RequestParam(value="lines", required=true) List<String> lines, Model model) {
 
-        for(int i = 0; i < lines.size(); i++) {
+			HashMap<Integer,HashMap<String,Object>> response = new HashMap<Integer,HashMap<String,Object>>();
 
-            response.put(i,new HashMap<String,Object>());
+			for(int i = 0; i < lines.size(); i++) {
 
-            Annotation annotation = tokenizer.process(lines.get(i));
-            pipeline.annotate(annotation);
-            if(annotation.get(CoreAnnotations.SentencesAnnotation.class).size() > 0) {
-                CoreMap sentence = annotation.get(CoreAnnotations.SentencesAnnotation.class).get(0);
-                Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
-                SimpleMatrix vector = RNNCoreAnnotations.getPredictions(tree);
+				response.put(i,new HashMap<String,Object>());
 
-                response.get(i).put("line",lines.get(i));
-                System.out.println("Parsing "+i+": "+lines.get(i));
-                response.get(i).put("sentiment",vector.get(1)*0.25+vector.get(2)*0.5+vector.get(3)*0.75+vector.get(4));
-            }
-        }
-        return response;
-    }
+				Annotation annotation = tokenizer.process(lines.get(i));
+				pipeline.annotate(annotation);
+				if(annotation.get(CoreAnnotations.SentencesAnnotation.class).size() > 0) {
+					CoreMap sentence = annotation.get(CoreAnnotations.SentencesAnnotation.class).get(0);
+					Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
+					SimpleMatrix vector = RNNCoreAnnotations.getPredictions(tree);
+
+					response.get(i).put("line",lines.get(i));
+					System.out.println("Parsing "+i+": "+lines.get(i));
+					response.get(i).put("sentiment",vector.get(1)*0.25+vector.get(2)*0.5+vector.get(3)*0.75+vector.get(4));
+				}
+			}
+			return response;
+		}
 }
