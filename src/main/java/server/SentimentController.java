@@ -35,7 +35,7 @@ public class SentimentController {
 		Properties pipelineProps = new Properties();
 		Properties tokenizerProps = new Properties();
 
-		pipelineProps.setProperty("ssplit.eolonly", "true");
+		pipelineProps.setProperty("ssplit.eolonly", "false");
 		pipelineProps.setProperty("annotators", "parse, sentiment");
 		pipelineProps.setProperty("enforceRequirements", "false");
 
