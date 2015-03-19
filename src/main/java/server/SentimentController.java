@@ -35,7 +35,7 @@ public class SentimentController {
 		Properties pipelineProps = new Properties();
 		Properties tokenizerProps = new Properties();
 
-		pipelineProps.setProperty("ssplit.eolonly", "false");
+		pipelineProps.setProperty("ssplit.isOneSentence", "true");
 		pipelineProps.setProperty("annotators", "parse, sentiment");
 		pipelineProps.setProperty("enforceRequirements", "false");
 
@@ -45,27 +45,28 @@ public class SentimentController {
 		this.pipeline = new StanfordCoreNLP(pipelineProps);
 
 	}
+
 	@RequestMapping("/sentiment")
-		public @ResponseBody HashMap<Integer,HashMap<String,Object>> sentiment(@RequestParam(value="lines", required=true) List<String> lines, Model model) {
+	public @ResponseBody HashMap<Integer,HashMap<String,Object>> sentiment(@RequestParam(value="lines", required=true) List<String> lines, Model model) {
 
-			HashMap<Integer,HashMap<String,Object>> response = new HashMap<Integer,HashMap<String,Object>>();
+		HashMap<Integer,HashMap<String,Object>> response = new HashMap<Integer,HashMap<String,Object>>();
 
-			for(int i = 0; i < lines.size(); i++) {
+		for(int i = 0; i < lines.size(); i++) {
 
-				response.put(i,new HashMap<String,Object>());
+			response.put(i,new HashMap<String,Object>());
 
-				Annotation annotation = tokenizer.process(lines.get(i));
-				pipeline.annotate(annotation);
-				if(annotation.get(CoreAnnotations.SentencesAnnotation.class).size() > 0) {
-					CoreMap sentence = annotation.get(CoreAnnotations.SentencesAnnotation.class).get(0);
-					Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
-					SimpleMatrix vector = RNNCoreAnnotations.getPredictions(tree);
+			Annotation annotation = tokenizer.process(lines.get(i));
+			pipeline.annotate(annotation);
+			if(annotation.get(CoreAnnotations.SentencesAnnotation.class).size() > 0) {
+				CoreMap sentence = annotation.get(CoreAnnotations.SentencesAnnotation.class).get(0);
+				Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
+				SimpleMatrix vector = RNNCoreAnnotations.getPredictions(tree);
 
-					response.get(i).put("line",lines.get(i));
-					System.out.println("Parsing "+i+": "+lines.get(i));
-					response.get(i).put("sentiment",vector.get(1)*0.25+vector.get(2)*0.5+vector.get(3)*0.75+vector.get(4));
-				}
+				response.get(i).put("line",lines.get(i));
+				System.out.println("Parsing "+i+": "+lines.get(i));
+				response.get(i).put("sentiment",vector.get(1)*0.25+vector.get(2)*0.5+vector.get(3)*0.75+vector.get(4));
 			}
-			return response;
 		}
+		return response;
+	}
 }
