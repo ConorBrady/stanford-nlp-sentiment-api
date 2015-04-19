@@ -36,6 +36,7 @@ Responds:
         line: "The movie was really great. The movie was really terrible"
     }
 }
+```
 
 Note the averaging of the third sentiment, this should be avoided but is
 available if required.
