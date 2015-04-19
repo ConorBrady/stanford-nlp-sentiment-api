@@ -57,15 +57,16 @@ public class SentimentController {
 
 			Annotation annotation = tokenizer.process(lines.get(i));
 			pipeline.annotate(annotation);
-			if(annotation.get(CoreAnnotations.SentencesAnnotation.class).size() > 0) {
-				CoreMap sentence = annotation.get(CoreAnnotations.SentencesAnnotation.class).get(0);
+			double sentiment = 0;
+			int sentenceCount = annotation.get(CoreAnnotations.SentencesAnnotation.class).size();
+			for( int j = 0; j < sentenceCount; j++ ) {
+				CoreMap sentence = annotation.get(CoreAnnotations.SentencesAnnotation.class).get(j);
 				Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
 				SimpleMatrix vector = RNNCoreAnnotations.getPredictions(tree);
-
-				response.get(i).put("line",lines.get(i));
-				System.out.println("Parsing "+i+": "+lines.get(i));
-				response.get(i).put("sentiment",vector.get(1)*0.25+vector.get(2)*0.5+vector.get(3)*0.75+vector.get(4));
+				sentiment += (vector.get(1)*0.25+vector.get(2)*0.5+vector.get(3)*0.75+vector.get(4))/(double)sentenceCount;
 			}
+			response.get(i).put("line",lines.get(i));
+			response.get(i).put("sentiment",sentiment);
 		}
 		return response;
 	}

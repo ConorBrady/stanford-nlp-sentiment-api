@@ -1,3 +1,3 @@
-/home/ubuntu/stanford-npl-sentiment-api/src/main/java/server/SimpleCORSFilter.java
-/home/ubuntu/stanford-npl-sentiment-api/src/main/java/server/SentimentController.java
-/home/ubuntu/stanford-npl-sentiment-api/src/main/java/server/Application.java
+/Users/conorjbrady/Dropbox/College/4thYear/FYP/sentiment-server/src/main/java/server/Application.java
+/Users/conorjbrady/Dropbox/College/4thYear/FYP/sentiment-server/src/main/java/server/SentimentController.java
+/Users/conorjbrady/Dropbox/College/4thYear/FYP/sentiment-server/src/main/java/server/SimpleCORSFilter.java
